@@ -99,7 +99,7 @@ class SubTicketsModule(Component):
             db = self.env.get_db_cnx()
         cursor = db.cursor()
         cursor.execute("SELECT parent, child FROM subtickets WHERE parent=%s",
-                       (parent_id, ))
+                       (unicode(parent_id), ))
 
         for parent, child in cursor:
             children[child] = None
@@ -116,7 +116,7 @@ class SubTicketsModule(Component):
             cursor = db.cursor()
 
             cursor.execute("SELECT parent, child FROM subtickets WHERE parent=%s",
-                           (ticket.id, ))
+                           (unicode(ticket.id), ))
 
             for parent, child in cursor:
                 if Ticket(self.env, child)['status'] != 'closed':

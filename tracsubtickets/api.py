@@ -148,18 +148,18 @@ class SubTicketsSystem(Component):
         # remove old parents
         for parent in old_parents - new_parents:
             cursor.execute("DELETE FROM subtickets WHERE parent=%s AND child=%s",
-                           (parent, ticket.id))
+                           (unicode(parent), unicode(ticket.id)))
         # add new parents
         for parent in new_parents - old_parents:
             cursor.execute("INSERT INTO subtickets VALUES(%s, %s)",
-                           (parent, ticket.id))
+                           (unicode(parent), unicode(ticket.id)))
         db.commit()
 
     def ticket_deleted(self, ticket):
         db = self.env.get_db_cnx()
         cursor = db.cursor()
         # TODO: check if there's any child ticket
-        cursor.execute("DELETE FROM subtickets WHERE child=%s", (ticket.id, ))
+        cursor.execute("DELETE FROM subtickets WHERE child=%s", (unicode(ticket.id), ))
         db.commit()
 
     # ITicketManipulator methods
@@ -179,7 +179,7 @@ class SubTicketsSystem(Component):
                     yield 'parents', _('A ticket cannot be a parent to itself')
                 else:
                     # check if the id exists
-                    cursor.execute("SELECT id FROM ticket WHERE id=%s", (id, ))
+                    cursor.execute("SELECT id FROM ticket WHERE id=%s", (unicode(id), ))
                     row = cursor.fetchone()
                     if row is None:
                         yield 'parents', _('Ticket #%s does not exist') % id
@@ -189,7 +189,7 @@ class SubTicketsSystem(Component):
             def _check_parents(id, all_parents):
                 all_parents = all_parents + [id]
                 errors = []
-                cursor.execute("SELECT parent FROM subtickets WHERE child=%s", (id, ))
+                cursor.execute("SELECT parent FROM subtickets WHERE child=%s", (unicode(id), ))
                 for x in [int(x[0]) for x in cursor]:
                     if x in all_parents:
                         error = ' > '.join(['#%s' % n for n in all_parents + [x]])
