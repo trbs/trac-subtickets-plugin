@@ -93,8 +93,9 @@ class SubTicketsModule(Component):
     def prepare_ticket(self, req, ticket, fields, actions):
         pass
 
-    def get_children(self, parent_id, db=None):
+    def get_children(self, parent_id, db=None, ids=None):
         children = {}
+        ids = ids or set()
         if not db:
             db = self.env.get_db_cnx()
         cursor = db.cursor()
@@ -102,10 +103,12 @@ class SubTicketsModule(Component):
                        (unicode(parent_id), ))
 
         for parent, child in cursor:
-            children[child] = None
+            if not child in ids:
+                children[child] = None
+                ids.add(child)
 
         for id in children:
-            children[id] = self.get_children(id, db)
+            children[id] = self.get_children(id, db, ids)
 
         return children
         
